@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background: url(../image/fondEcran.jpg);
+    min-height: 100vh;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+section{
+    height: 586.8px;
+    width: 286px;
+    background: #fff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 5px;
+    border: 0.1px solid black;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+}
+
+.hautTel{
+    height: 59px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ecouteurApparence{
+    width: 43px;
+    height: 6px;
+    background: rgb(56, 55, 55);
+    border-radius: 8px;
+    border: solid 3px rgb(56, 55, 55);
+}
+
+.ecranTel{
+    background: black;
+    background: -webkit-linear-gradient(220deg, #333 -30%, black 100%);
+    height: 80%;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+.basTel{
+    font-size: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.boutton{
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    border:solid 3px rgb(56, 55, 55);
+    margin-top: 12px;
+    cursor: pointer;
+}
+
+.boutton:hover{
+    border:solid 3px #00BFFF;
+    background: radial-gradient(#B0E0E6, transparent);
+}
+
+.ecranTel.active{
+    background: url(../image/montagne.jpg);
+    background-position: center;
+    background-size: cover;
+} 
+
+
+/* Elément écran telephone :
+
+Heure et date principal du téléphone : */
+
+.ecranTel.active .jour{
+    visibility: visible;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 20px;
+}
+
+.ecranTel.active .heure{
+    visibility: visible;
+    color: #fff;
+    font-family: 'Roboto';
+    font-size: 50px;
+}
+
+.blocHeure{
+    margin-top: 52px;
+    visibility: hidden;
+}
+
+/* Météo du téléphone : */
+
+.weather{
+    width: 37px;
+    height: 37px;
+    position: relative;
+    bottom: 140px;
+    left: 110px;
+    visibility: hidden;
+    object-fit: cover;
+}
+
+.ecranTel.active .weather{
+    visibility: visible;
+}
+
+.blocWeather{
+    transition: 2s ease-in-out;
+    transform: scale(0.01) translate(40%, -40%);
+}
+
+.ecranTel.active .blocWeather{
+    transform: scale(1) translate(-00%, 00%);
+}
+
+/* Barre de recherche Google : */
+
+.googleSearch{
+    margin-top: 90px;
+    visibility: hidden;
+    margin-left: 5px;
+}
+
+.ecranTel.active .googleSearch{
+    visibility: visible;
+}
+
+.logoGoogle{
+    position: relative;
+    border-top: 10px solid #EA4335;
+    border-right: 10px solid #4285F4;
+    border-bottom: 10px solid #34A853;
+    border-left: 10px solid #FBBC05;
+    border-radius: 50%;
+    width: 29px;
+    height: 29px;
+    top: 31px;
+    left: 164px;
+}
+
+input[type="text"]{
+    width: 180px;
+    background: #fff;
+    border-radius: 10px 0 0 10px;
+    border: none;
+    outline: none;
+    padding: 8px;
+}
+
+/* Pour modifier la barre de recherche Google lorsqu'on est sur le bloc :
+
+input[type="textGoogle"]:focus{
+    background: linear-gradient(0deg, #808080, #fff, #fff, #fff, #fff, #fff, #fff, #fff, #fff, #808080);
+} */
+
+input[type="submit"]{
+    border-radius: 0 10px 10px 00;
+    border: none;
+    outline: none;
+    padding: 8px;
+    cursor: pointer;
+    background: #ffc107;
+    color: #fff;
+    width: 65px;
+    left: -5px;
+    position: relative;
+}
+
+input[type="submit"]:hover{
+    background: #ff5722;
+}
+
+/* Utilitaires en bas de l'écran du téléphone : */
+
+.utilitaires{
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    visibility: hidden;
+}
+
+.ecranTel.active .utilitaires{
+    visibility: visible;
+}
+
+.utilitaire{
+    font-size: 45px;
+    margin-right: 7px;
+    margin-left: 7px;
+}
+
+.numero{
+    width: 48px;
+    height: 48px;
+}
+
+.utilitaires .numero:hover{
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+
+/* Icônes en haut de l'écran du téléphone : */
+
+.hautEcranTelephone{
+    height: 30px;
+    width: 30px;
+    color: #fff;
+    font-family: 'Roboto';
+    display: flex;
+    visibility: hidden;
+}
+
+.partieGaucheHeure{
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+.partieGaucheRestes{
+    display: flex;
+    gap: 7px;
+    position: relative;
+    top: 5px;
+    left: 17px;
+}
+
+.couleurYoutube{
+    color: #c4302b;
+}
+
+.couleurMail{
+    color: #0000FF;
+}
+
+.partieDroiteHaut{
+    display: flex;
+    gap: 10px;
+    color: #fff;
+    position: relative;
+    left: 90px;
+    top: 9px;
+}
+
+.ecranTel.active .hautEcranTelephone{
+    visibility: visible;
+}
+
+
+/* Affichage météo du téléphone (lorsque l'on clique sur la météo) :  */
+
+.weatherWidget{
+    visibility: hidden;
+    position: relative;
+    bottom: 275px;
+}
+
+.credit{
+    display: none;
+}
+
+.weatherWidget.active2{
+    visibility: visible;
+}
+
+.weather:hover{
+    cursor: pointer;
+    background: radial-gradient(#B0E0E6, transparent);
+    border-radius: 50%;
+}
+
+.weatherWidget .visualcrossing-wx-widget .period .maxt{
+    color: #e8e8e8;
+}
+
+.weatherWidget .visualcrossing-wx-widget .title{
+    font-size: 16px;
+}
+
+/* Météo en temps réel : https://www.visualcrossing.com/
+Heure et date en temps réel : https://momentjs.com/ */

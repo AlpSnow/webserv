@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/style.css">
+    <title>Reproduction d'un Iphone</title>
+</head>
+
+<body>
+
+    <section>
+
+        <div class="hautTel">
+            <div class="ecouteurApparence"></div>
+        </div>
+
+
+        <div class="ecranTel">
+
+            <div class="hautEcranTelephone">
+
+                <div class="partieGaucheHeure"></div>
+               
+                <div class="partieGaucheRestes">
+                    <div class="couleurYoutube"> <i class="fa-brands fa-youtube"></i> </div>
+                    <div class="couleurMail"> <i class="fa-solid fa-envelope"></i> </div>
+                </div>
+                
+                <div class="partieDroiteHaut">
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-brands fa-bluetooth-b"></i>
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-battery-full"></i>
+                </div>
+            </div>
+
+            <div class="blocHeure"> 
+                <span class="jour"> </span>
+                <br>
+                <span class="heure"> </span> 
+            </div>
+            
+            <div class=blocWeather> 
+                <img class="weather" src="image/weather.png" alt=""> 
+            </div>
+
+            <div class="googleSearch">
+                <div class="logoGoogle"></div>
+                <form>
+                    <input type="text" name="" placeholder="rechercher..." class="query">
+                    <input type="submit" name="" value="search" class="searchBtn"> 
+                </form>
+            </div>
+
+            <div class="utilitaires">
+                <span class="utilitaire"><img class="numero" src="image/message.png" alt="message"></span>
+                <span class="utilitaire"><img class="numero" src="image/telephone.png" alt="telephone"></span>
+                <span class="utilitaire"><img class="numero" src="image/safari.png" alt="safari"></span>
+                <span class="utilitaire"><img class="numero" src="image/itunes.png" alt="itunes"></span>
+            </div>
+
+            <!-- Affichage météo lorsque l'on clique dessus. Dans l'écran du téléphone mais en dehors de la disposition -->
+            <div class="weatherWidget"></div>
+        </div>
+
+
+        <div class="basTel">
+            <span class="boutton"></span>
+        </div>
+
+    </section>
+
+    <script src="js/moment-with-locales.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

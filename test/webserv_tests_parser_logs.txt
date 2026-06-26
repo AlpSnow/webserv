@@ -1,0 +1,470 @@
+============================================================
+              WEBSERV - TESTS PARSER / LOGS / TEMPS
+============================================================
+
+Contexte :
+- Serveur lancé sur 127.0.0.1:8082
+- Réponse actuelle attendue pour les requêtes valides :
+
+  HTTP/1.1 200 OK
+  Content-Length: 5
+  Content-Type: text/plain
+  Connection: close
+
+  Hello
+
+- Les logs serveur doivent afficher :
+  date, IP, fd, méthode, path, status, taille réponse, temps de réponse.
+
+Note :
+- Pour les tests avec nc, utiliser \r\n dans les requêtes HTTP.
+- Sur macOS, utiliser de préférence : nc -w 5 127.0.0.1 8082
+- Le status affiché dans les logs peut encore être 0 si client.statusCode
+  n'est pas encore branché dans printLog(). À corriger plus tard avec 200/400/501.
+
+============================================================
+1. GET SIMPLE AVEC CURL
+============================================================
+
+Commande :
+
+curl -v http://127.0.0.1:8082/
+
+Objectif :
+- Vérifier qu'une requête GET classique est bien reçue, parsée et répondue.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [GET] path: [/] error: 0
+● ... │ 127.0.0.1 │ fd:... │ GET    / │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+Content-Length: 5
+Content-Type: text/plain
+Connection: close
+
+Hello
+
+============================================================
+2. GET SIMPLE AVEC NC
+============================================================
+
+Commande :
+
+printf "GET / HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier que nc fonctionne correctement avec les fins de ligne HTTP \r\n.
+- Vérifier que POLLHUP / recv == 0 ne détruit pas le client avant la réponse.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [GET] path: [/] error: 0
+● ... │ 127.0.0.1 │ fd:... │ GET    / │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+Content-Length: 5
+Content-Type: text/plain
+Connection: close
+
+Hello
+
+============================================================
+3. GET LENT - TEST DU TEMPS DE RÉPONSE
+============================================================
+
+Commande :
+
+(
+	printf "GET / HTTP/1.1\r\n"
+	sleep 3
+	printf "Host: 127.0.0.1:8082\r\n"
+	sleep 2
+	printf "\r\n"
+) | nc -w 10 127.0.0.1 8082
+
+Objectif :
+- Vérifier que startTime démarre au premier recv().
+- Vérifier que le temps affiché correspond au temps réel entre le début
+  de la requête et la réponse.
+
+Résultat attendu côté serveur :
+
+state: 1 method: [GET] path: [/] error: 0
+state: 1 method: [GET] path: [/] error: 0
+state: 4 method: [GET] path: [/] error: 0
+● ... │ 127.0.0.1 │ fd:... │ GET    / │ ... │ ...B │ 5.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+Content-Length: 5
+Content-Type: text/plain
+Connection: close
+
+Hello
+
+============================================================
+4. POST SIMPLE AVEC CURL
+============================================================
+
+Commande :
+
+curl -v -X POST http://127.0.0.1:8082/upload -d "hello=world"
+
+Objectif :
+- Vérifier que la méthode POST est acceptée.
+- Vérifier que le body est lu selon Content-Length.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [POST] path: [/upload] error: 0
+Body attendu si affiché : hello=world
+● ... │ 127.0.0.1 │ fd:... │ POST   /upload │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+5. POST SIMPLE AVEC NC
+============================================================
+
+Commande :
+
+printf "POST /upload HTTP/1.1\r\nHost: 127.0.0.1:8082\r\nContent-Length: 10\r\n\r\nhelloworld" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier le parsing d'un POST brut.
+- Vérifier que le body fait exactement 10 octets.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [POST] path: [/upload] error: 0
+Body attendu si affiché : helloworld
+● ... │ 127.0.0.1 │ fd:... │ POST   /upload │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+6. POST LENT - BODY EN DEUX MORCEAUX
+============================================================
+
+Commande :
+
+(
+	printf "POST /upload HTTP/1.1\r\n"
+	printf "Host: 127.0.0.1:8082\r\n"
+	printf "Content-Length: 10\r\n"
+	printf "\r\n"
+	printf "hello"
+	sleep 3
+	printf "world"
+) | nc -w 10 127.0.0.1 8082
+
+Objectif :
+- Vérifier que le body peut arriver en plusieurs recv().
+- Vérifier que body_bytes_readed progresse correctement.
+- Vérifier le temps de réponse sur une requête POST lente.
+
+Résultat attendu côté serveur :
+
+state: 2 method: [POST] path: [/upload] error: 0
+state: 4 method: [POST] path: [/upload] error: 0
+Body attendu si affiché : helloworld
+● ... │ 127.0.0.1 │ fd:... │ POST   /upload │ ... │ ...B │ 3.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+7. DELETE SIMPLE AVEC CURL
+============================================================
+
+Commande :
+
+curl -v -X DELETE http://127.0.0.1:8082/file.txt
+
+Objectif :
+- Vérifier que la méthode DELETE est acceptée par le parser.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [DELETE] path: [/file.txt] error: 0
+● ... │ 127.0.0.1 │ fd:... │ DELETE /file.txt │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+8. DELETE SIMPLE AVEC NC
+============================================================
+
+Commande :
+
+printf "DELETE /file.txt HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier DELETE avec une requête brute.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [DELETE] path: [/file.txt] error: 0
+● ... │ 127.0.0.1 │ fd:... │ DELETE /file.txt │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+9. HEAD
+============================================================
+
+Commande curl :
+
+curl -v -I http://127.0.0.1:8082/
+
+Commande nc :
+
+printf "HEAD / HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier que HEAD est accepté par le parser.
+- Plus tard, HEAD devra répondre avec les headers uniquement, sans body.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [HEAD] path: [/] error: 0
+● ... │ 127.0.0.1 │ fd:... │ HEAD   / │ ... │ ...B │ 0.00s
+
+Résultat attendu côté client actuellement :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+Note :
+- Pour une vraie implémentation HTTP, HEAD ne doit pas envoyer le body.
+
+============================================================
+10. MÉTHODE INCONNUE
+============================================================
+
+Commande :
+
+printf "PATCH / HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+Objectif :
+- Vérifier que le parser refuse une méthode non supportée.
+
+Résultat attendu côté serveur :
+
+state: ERROR
+error: 501
+method: [PATCH]
+path: [/]
+
+Résultat attendu côté client actuellement :
+
+HTTP/1.1 400 Bad Request
+Content-Length: 11
+Connection: close
+
+Bad Request
+
+Note :
+- Si la réponse erreur est encore hardcodée en 400, c'est normal.
+- Plus tard, le serveur devra construire une réponse avec le vrai code 501.
+
+============================================================
+11. REQUÊTE MAL FORMÉE
+============================================================
+
+Commande :
+
+printf "BADREQUEST\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier une request line invalide.
+
+Résultat attendu côté serveur :
+
+state: ERROR
+error: 400
+
+Résultat attendu côté client :
+
+HTTP/1.1 400 Bad Request
+Content-Length: 11
+Connection: close
+
+Bad Request
+
+============================================================
+12. REQUÊTE INCOMPLÈTE PUIS FERMETURE
+============================================================
+
+Commande :
+
+printf "GET / HTTP/1.1\r\n" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier que le serveur ferme proprement si le client ferme avant
+  la fin des headers.
+
+Résultat attendu côté serveur :
+
+state: 1 method: [GET] path: [/] error: 0
+recv = 0 bytes
+status != COMPLETE
+
+Résultat attendu côté client :
+
+- Pas forcément de réponse HTTP.
+- Connexion fermée proprement.
+- Le serveur ne crash pas.
+
+============================================================
+13. CONTENT-LENGTH TROP PETIT
+============================================================
+
+Commande :
+
+printf "POST /upload HTTP/1.1\r\nHost: 127.0.0.1:8082\r\nContent-Length: 5\r\n\r\nhelloworld" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier que le parser lit uniquement le nombre d'octets annoncé.
+
+Résultat attendu côté serveur :
+
+state: 4 method: [POST] path: [/upload] error: 0
+Body attendu si affiché : hello
+
+Attention :
+- "world" reste en trop dans data si les requêtes pipelinées ne sont pas encore gérées.
+
+Résultat attendu côté client :
+
+HTTP/1.1 200 OK
+...
+
+Hello
+
+============================================================
+14. CONTENT-LENGTH TROP GRAND PUIS FERMETURE
+============================================================
+
+Commande :
+
+printf "POST /upload HTTP/1.1\r\nHost: 127.0.0.1:8082\r\nContent-Length: 20\r\n\r\nhello" | nc -w 5 127.0.0.1 8082
+
+Objectif :
+- Vérifier que le serveur ne considère pas le POST complet si le body
+  reçu est plus petit que Content-Length.
+
+Résultat attendu côté serveur :
+
+state: 2 method: [POST] path: [/upload] error: 0
+recv = 0 bytes
+status != COMPLETE
+
+Résultat attendu côté client :
+
+- Pas forcément de réponse HTTP avec la logique actuelle.
+- Connexion fermée proprement.
+
+Note :
+- Plus tard, avec le timeout serveur, ce cas pourra donner 408 Request Timeout
+  si le client reste connecté sans envoyer la suite.
+
+============================================================
+15. PLUSIEURS REQUÊTES RAPIDES
+============================================================
+
+Commande :
+
+for i in $(seq 1 20); do
+	curl -s http://127.0.0.1:8082/ > /dev/null
+done
+
+Objectif :
+- Vérifier que le serveur reste stable sur plusieurs connexions successives.
+- Vérifier qu'il n'y a pas de fd bloqué.
+
+Résultat attendu côté serveur :
+
+- 20 logs propres.
+- Pas de crash.
+- Pas de client bloqué dans poll.
+
+============================================================
+TESTS PRIORITAIRES À REFAIRE SOUVENT
+============================================================
+
+1) GET simple nc :
+
+printf "GET / HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+2) GET lent :
+
+(
+	printf "GET / HTTP/1.1\r\n"
+	sleep 3
+	printf "Host: 127.0.0.1:8082\r\n"
+	sleep 2
+	printf "\r\n"
+) | nc -w 10 127.0.0.1 8082
+
+3) POST lent :
+
+(
+	printf "POST /upload HTTP/1.1\r\n"
+	printf "Host: 127.0.0.1:8082\r\n"
+	printf "Content-Length: 10\r\n"
+	printf "\r\n"
+	printf "hello"
+	sleep 3
+	printf "world"
+) | nc -w 10 127.0.0.1 8082
+
+4) Méthode inconnue :
+
+printf "PATCH / HTTP/1.1\r\nHost: 127.0.0.1:8082\r\n\r\n" | nc -w 5 127.0.0.1 8082
+
+5) Requête incomplète :
+
+printf "GET / HTTP/1.1\r\n" | nc -w 5 127.0.0.1 8082
+
+============================================================
+
+
+Timeout test
+
+(
+	printf "GET / HTTP/1.1\r\n"
+	sleep 40
+) | nc -w 45 127.0.0.1 8082
+

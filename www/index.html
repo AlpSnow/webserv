@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webserv Test Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .box {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #cc0000;
+        }
+
+        .theme-button {
+            margin-right: 10px;
+        }
+
+        .dark-button {
+            background-color: #222;
+        }
+
+        .dark-button:hover {
+            background-color: #000;
+        }
+
+        .light-button {
+            background-color: #0066cc;
+        }
+
+        .light-button:hover {
+            background-color: #004c99;
+        }
+
+        h3 {
+            margin-bottom: 5px;
+        }
+
+        code {
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        input {
+            padding: 8px;
+            width: 200px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="/theme.css">
+</head>
+<body>
+
+    <h1>Welcome to Webserv!</h1>
+
+    <div class="box">
+        <h2>0. Test Session Theme</h2>
+        <p>
+            These buttons send a request to the server.
+            The server stores the theme inside the current session.
+        </p>
+
+        <a href="/set-theme-dark">
+            <button type="button" class="theme-button dark-button">Dark mode</button>
+        </a>
+
+        <a href="/set-theme-light">
+            <button type="button" class="theme-button light-button">Light mode</button>
+        </a>
+
+        <p>
+            Current theme is stored server-side in the session using <code>SESSION_ID</code>.
+        </p>
+    </div>
+    
+    <div class="box">
+        <h2>1. Test GET Routing</h2>
+        <ul>
+            <li><a href="/directory1/page1.html">Go to Directory 1 (page1.html)</a></li>
+            <li><a href="/directory2/page2.html">Go to Directory 2 (page2.html)</a></li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>2. Test Index Fallback</h2>
+        <p>This link goes to a folder, but the server should automatically serve its index.html!</p>
+        <ul>
+            <li><a href="/documents/">Go to /documents/</a></li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>3. Test Autoindex</h2>
+        <p>This folder is empty. If autoindex is ON, you should see a generated list!</p>
+        <ul>
+            <li><a href="/images/">Go to /images/</a></li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>4. Test DELETE Method</h2>
+        <p>Create a file named <b>delete_me.txt</b> in the root folder, then click this button.</p>
+        <button onclick="testDelete()">Delete 'delete_me.txt'</button>
+        <p id="delete-status"></p>
+    </div>
+
+    <div class="box">
+        <h2>5. Test CGI Execution (Pipes & Poll)</h2>
+        <p>These tests validate your non-blocking pipes, environment variables, and <code>execve</code> routing.</p>
+        
+        <h3>A. Standard GET (Python)</h3>
+        <ul>
+            <li><a href="/cgi-bin/index.py">Execute index.py</a> - <i>Tests basic execution and REQUEST_METHOD.</i></li>
+        </ul>
+
+        <h3>B. Query Strings (Bash)</h3>
+        <ul>
+            <li><a href="/cgi-bin/test.sh?user=cnamoune&project=webserv">Execute test.sh?user=...</a> - <i>Tests the QUERY_STRING environment variable.</i></li>
+        </ul>
+
+        <h3>C. POST Body (Pipe Write Test)</h3>
+        <p>This form will send a POST body to the Python script. Watch your server logs to see the <code>POLLOUT</code> event trigger your <code>handle_sending_data_to_cgi</code> function!</p>
+        <form action="/cgi-bin/index.py" method="POST">
+            <input type="text" name="test_data" value="Hello CGI Pipe!">
+            <button type="submit" style="background-color: #28a745;">Send POST to CGI</button>
+        </form>
+    </div>
+
+    <script>
+        function testDelete() {
+            fetch('/delete_me.txt', { method: 'DELETE' })
+            .then(response => {
+                let statusMsg = document.getElementById('delete-status');
+                if (response.status === 204 || response.status === 200) {
+                    statusMsg.innerHTML = "✅ File successfully deleted! (Status " + response.status + ")";
+                    statusMsg.style.color = "green";
+                } else if (response.status === 403) {
+                    statusMsg.innerHTML = "❌ 403 Forbidden: File doesn't exist or permission denied.";
+                    statusMsg.style.color = "red";
+                } else {
+                    statusMsg.innerHTML = "⚠️ Unexpected Status: " + response.status;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

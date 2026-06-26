@@ -1,0 +1,123 @@
+/*? Style pour l'index.php : */
+
+.milieu{
+    text-align: center;
+    /* width: 50%; */
+    margin-top: 70px;
+    font-size: 30px;
+}
+
+/*? barre de navigation : */
+
+.navbar{
+    height: 50px;
+}
+
+/*? Partie principale : */
+
+/* .containerAAA{
+    height: 100vh;
+} */
+
+section{
+    display: flex;
+    justify-content: center;
+}
+
+.partieDroite{
+    flex-basis: 50%;
+    margin: auto;
+    text-align: center;
+}
+
+.partieGauche{
+    flex-basis: 50%;
+    margin-left: 10%;
+}
+
+.btn{
+    margin-top: 20px;
+}
+
+.lettreDejaDeviner{
+    text-align: center;
+    margin-top: 20px;
+}
+
+/*? Section basse : */
+
+.sectionBas{
+    align-items: center;
+}
+
+.recommencer{
+    display: flex;
+    flex-basis: 50%;
+    justify-content: center;
+    margin-left: 10%;
+}
+
+.mettreGris{
+    opacity: .65;
+}
+
+.score{
+    flex-basis: 50%;
+    text-align: center;
+}
+
+/*? footer : */
+
+.bg-dark{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+
+@media only screen and (min-width : 1160.1px){
+
+    .margeVD{
+        height: 116.2px;
+        width: 100%;
+    }
+}
+
+@media only screen and (min-width : 725px) and (max-width : 1160px){
+
+    .recommencer{
+        flex-basis: 100%;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .score{
+        flex-basis: 100%;
+    }
+
+    .bouton1{
+        margin-bottom: 0;
+    }
+
+    .mettreGris{
+        margin-top: 10px;
+    }
+
+    .margeV{
+        height: 116.2px;
+        width: 100%;
+    }
+
+    .margeD{
+        width: 100%;
+        height: 50.2px;
+    }
+}
+
+/*? Responsive pour la barre de navigation : */
+@media only screen and (min-width : 725px) and (max-width : 1000px){
+
+    .navbar{
+        height: auto;
+    }
+}
