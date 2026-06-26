@@ -6,7 +6,7 @@
 /*   By: mwallis <mwallis@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/17 13:22:39 by mlavry            #+#    #+#             */
-/*   Updated: 2026/06/18 17:51:04 by mwallis          ###   ########.fr       */
+/*   Updated: 2026/06/26 23:35:53 by mwallis          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
 
-#define HEADER_TIMEOUT 120
-#define BODY_TIMEOUT 120
-#define SEND_TIMEOUT 120
-#define CGI_TIMEOUT_SEC 120
+#define HEADER_TIMEOUT 240
+#define BODY_TIMEOUT 240
+#define SEND_TIMEOUT 240
+#define CGI_TIMEOUT_SEC 240
 
 #include "Server.hpp"
 
